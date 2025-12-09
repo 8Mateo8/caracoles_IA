@@ -76,7 +76,7 @@ with st.spinner('Cargando cerebro de la IA...'):
 
 # --- DEFINIR LAS CLASES ---
 # ¡CAMBIA ESTO POR LOS NOMBRES REALES DE TUS CARPETAS!
-nombres_clases = ['Clase_A', 'Clase_B', 'Clase_C'] 
+nombres_clases = ['Burn', 'Skidmark', 'Turbo'] 
 
 # --- INTERFAZ DE USUARIO ---
 file = st.file_uploader("Sube una foto (JPG/PNG)", type=["jpg", "png", "jpeg"])
@@ -103,3 +103,4 @@ if file is not None and model is not None:
     st.success(f"Predicción: **{class_name}**")
     st.info(f"Certeza: **{confidence:.2f}%**")
     st.bar_chart(predictions[0])
+
