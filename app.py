@@ -1,10 +1,12 @@
 import streamlit as st
 import tensorflow as tf
+from tensorflow.keras import layers, models
+from tensorflow.keras.applications import EfficientNetB7
+from tensorflow.keras.applications.efficientnet import preprocess_input
 from PIL import Image, ImageOps
 import numpy as np
 import os
 import gdown
-from tensorflow.keras.applications.efficientnet import preprocess_input
 
 # --- CONFIGURACIÓN DE LA PÁGINA ---
 st.set_page_config(
@@ -13,84 +15,91 @@ st.set_page_config(
     layout="centered"
 )
 
-# --- TITULO Y DESCRIPCIÓN ---
 st.title("🤖 Reconocimiento de Imágenes con EfficientNetB7")
 st.write("Sube una imagen y el modelo te dirá a qué clase pertenece.")
 
-# --- CARGAR EL MODELO (Con Caché) ---
-# Usamos @st.cache_resource para que Streamlit cargue el modelo UNA sola vez en memoria.
-# Si no usamos esto, el modelo se recargaría cada vez que subes una foto (muy lento).
+# --- DEFINIR EL ESQUELETO DEL MODELO MANUALMENTE ---
+# Esto evita el error de "Layer expects 1 input but received 2"
+# porque construimos la estructura limpia desde cero.
+def crear_esqueleto_modelo():
+    # 1. Definir la base igual que en el entrenamiento
+    base_model = EfficientNetB7(
+        weights='imagenet', 
+        include_top=False, 
+        input_shape=(600, 600, 3)
+    )
+    base_model.trainable = False # No importa para inferencia, pero buena práctica
+
+    # 2. Reconstruir la estructura Secuencial EXACTA
+    model = models.Sequential([
+        layers.Input(shape=(600, 600, 3)),
+        # Incluimos las capas de aumentación para que la estructura coincida 
+        # con los pesos guardados (aunque no se usan al predecir)
+        layers.RandomFlip("horizontal"),
+        layers.RandomRotation(0.1),
+        
+        layers.Lambda(preprocess_input),
+        base_model,
+        layers.GlobalAveragePooling2D(),
+        layers.Dropout(0.3),
+        layers.Dense(3, activation='softmax') # Tus 3 clases
+    ])
+    return model
+
 @st.cache_resource
-def load_model():
-    output_path = 'mi_modelo_b7.h5'
+def load_model_weights():
+    # 1. Crear el modelo vacío (el esqueleto)
+    model = crear_esqueleto_modelo()
     
-    # Descarga de Drive (igual que antes)
+    # 2. Descargar el archivo de pesos (.h5)
+    output_path = 'mi_modelo_b7.h5'
     if not os.path.exists(output_path):
+        # --- PEGA AQUÍ TU ID DE GOOGLE DRIVE ---
         file_id = '14J3hAIrG43OSrmPu1oxH-vbaAoIt1IJU' 
         url = f'https://drive.google.com/uc?id={file_id}'
         gdown.download(url, output_path, quiet=False)
     
-    # --- AQUÍ ESTÁ LA CORRECCIÓN ---
-    # Le pasamos 'preprocess_input' en custom_objects para que Keras sepa qué función usar
-    model = tf.keras.models.load_model(
-        output_path, 
-        custom_objects={'preprocess_input': preprocess_input}
-    )
+    # 3. Cargar SOLO los pesos en el esqueleto
+    # Usamos 'load_weights' en lugar de 'load_model'. 
+    # Esto evita el error de compilación de Keras 3.
+    try:
+        model.load_weights(output_path)
+    except Exception as e:
+        st.error(f"Hubo un error cargando los pesos: {e}")
+        return None
+        
     return model
 
-# Ejecutamos la función de carga. Aparecerá un spinner mientras carga.
-with st.spinner('Cargando modelo inteligente...'):
-    model = load_model()
+# Ejecutamos la carga
+with st.spinner('Cargando cerebro de la IA...'):
+    model = load_model_weights()
 
 # --- DEFINIR LAS CLASES ---
-# IMPORTANTE: Deben estar en el mismo orden alfabético que tus carpetas en Drive.
-# Ejemplo: Si tus carpetas eran 'Gatos', 'Perros', 'Ratones', ponlos así.
-nombres_clases = ['Burn', 'Skidmark', 'Turbo'] # <--- ¡CAMBIA ESTO!
+# ¡CAMBIA ESTO POR LOS NOMBRES REALES DE TUS CARPETAS!
+nombres_clases = ['Clase_A', 'Clase_B', 'Clase_C'] 
 
-# --- SUBIDA DE IMAGEN ---
-file = st.file_uploader("Por favor sube una imagen (JPG o PNG)", type=["jpg", "png", "jpeg"])
+# --- INTERFAZ DE USUARIO ---
+file = st.file_uploader("Sube una foto (JPG/PNG)", type=["jpg", "png", "jpeg"])
 
-# --- LÓGICA DE PREDICCIÓN ---
-if file is not None:
-    # 1. Mostrar la imagen subida al usuario
+if file is not None and model is not None:
     image = Image.open(file)
     st.image(image, caption='Imagen subida', use_column_width=True)
     
-    # 2. Preprocesar la imagen para que el modelo la entienda
-    # El modelo espera una imagen de (600, 600) píxeles.
-    size = (600, 600) 
-    
-    # Usamos ImageOps.fit para recortar el centro y redimensionar sin deformar mucho
+    # Procesamiento
+    size = (600, 600)
     image = ImageOps.fit(image, size, Image.Resampling.LANCZOS)
-    
-    # Convertimos la imagen a un array de números (matriz)
     img_array = np.asarray(image)
-    
-    # El modelo espera un lote de imágenes (batch), no una sola.
-    # Convertimos la forma de (600, 600, 3) a (1, 600, 600, 3)
     img_array = np.expand_dims(img_array, axis=0)
     
-    # NOTA: No dividimos por 255 aquí porque tu modelo ya tiene 
-    # la capa 'layers.Lambda(preprocess_input)' adentro.
-    
-    # 3. Realizar la predicción
+    # Predicción
     predictions = model.predict(img_array)
-    
-    # 'predictions' es un array de probabilidades, ej: [0.1, 0.8, 0.1]
-    # np.argmax nos dice la posición del valor más alto (en este caso, posición 1)
-    score = tf.nn.softmax(predictions[0]) # Convertimos a porcentajes legibles
+    score = tf.nn.softmax(predictions[0])
     class_index = np.argmax(predictions[0])
     
     class_name = nombres_clases[class_index]
-    confidence = np.max(predictions[0]) * 100 # Confianza en %
-
-    # 4. Mostrar resultados
+    confidence = np.max(predictions[0]) * 100
+    
     st.write("---")
     st.success(f"Predicción: **{class_name}**")
-    st.info(f"Probabilidad de certeza: **{confidence:.2f}%**")
-    
-    # (Opcional) Mostrar gráfico de barras con las probabilidades de todas las clases
-    st.write("Detalle de probabilidades:")
-
-    st.bar_chart(data=predictions[0])
-
+    st.info(f"Certeza: **{confidence:.2f}%**")
+    st.bar_chart(predictions[0])
