@@ -10,13 +10,13 @@ import gdown
 
 # --- CONFIGURACIÓN DE LA PÁGINA ---
 st.set_page_config(
-    page_title="Clasificador de Imágenes IA",
-    page_icon="🤖",
+    page_title="Examen IA",
+    # page_icon="🤖",
     layout="centered"
 )
 
-st.title("🤖 Reconocimiento de Imágenes con EfficientNetB7")
-st.write("Sube una imagen y el modelo te dirá a qué clase pertenece.")
+st.title("Reconocimiento de Personajes de Turbo")
+# st.write("Sube una imagen y el modelo te dirá a qué clase pertenece.")
 
 # --- DEFINIR EL ESQUELETO DEL MODELO MANUALMENTE ---
 # Esto evita el error de "Layer expects 1 input but received 2"
@@ -52,7 +52,7 @@ def load_model_weights():
     model = crear_esqueleto_modelo()
     
     # 2. Descargar el archivo de pesos (.h5)
-    output_path = 'mi_modelo_b7.h5'
+    output_path = 'caracoles_v1.h5'
     if not os.path.exists(output_path):
         # --- PEGA AQUÍ TU ID DE GOOGLE DRIVE ---
         file_id = '14J3hAIrG43OSrmPu1oxH-vbaAoIt1IJU' 
@@ -65,13 +65,13 @@ def load_model_weights():
     try:
         model.load_weights(output_path)
     except Exception as e:
-        st.error(f"Hubo un error cargando los pesos: {e}")
+        st.error(f"Error: {e}")
         return None
         
     return model
 
 # Ejecutamos la carga
-with st.spinner('Cargando cerebro de la IA...'):
+with st.spinner('Cargando modelo...'):
     model = load_model_weights()
 
 # --- DEFINIR LAS CLASES ---
@@ -103,4 +103,5 @@ if file is not None and model is not None:
     st.success(f"Predicción: **{class_name}**")
     st.info(f"Certeza: **{confidence:.2f}%**")
     st.bar_chart(predictions[0])
+
 
