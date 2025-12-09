@@ -42,7 +42,7 @@ with st.spinner('Cargando modelo inteligente...'):
 # --- DEFINIR LAS CLASES ---
 # IMPORTANTE: Deben estar en el mismo orden alfabético que tus carpetas en Drive.
 # Ejemplo: Si tus carpetas eran 'Gatos', 'Perros', 'Ratones', ponlos así.
-nombres_clases = ['Clase_A', 'Clase_B', 'Clase_C'] # <--- ¡CAMBIA ESTO!
+nombres_clases = ['Burn', 'Skidmark', 'Turbo'] # <--- ¡CAMBIA ESTO!
 
 # --- SUBIDA DE IMAGEN ---
 file = st.file_uploader("Por favor sube una imagen (JPG o PNG)", type=["jpg", "png", "jpeg"])
@@ -88,4 +88,5 @@ if file is not None:
     
     # (Opcional) Mostrar gráfico de barras con las probabilidades de todas las clases
     st.write("Detalle de probabilidades:")
+
     st.bar_chart(data=predictions[0])
