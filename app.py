@@ -4,6 +4,7 @@ from PIL import Image, ImageOps
 import numpy as np
 import os
 import gdown
+from tensorflow.keras.applications.efficientnet import preprocess_input
 
 # --- CONFIGURACIÓN DE LA PÁGINA ---
 st.set_page_config(
@@ -21,18 +22,20 @@ st.write("Sube una imagen y el modelo te dirá a qué clase pertenece.")
 # Si no usamos esto, el modelo se recargaría cada vez que subes una foto (muy lento).
 @st.cache_resource
 def load_model():
-    # Nombre del archivo local
     output_path = 'mi_modelo_b7.h5'
     
-    # Si el archivo no existe, lo descargamos de Drive
+    # Descarga de Drive (igual que antes)
     if not os.path.exists(output_path):
-        # ¡¡¡PEGA AQUÍ EL ID DE TU ARCHIVO DE DRIVE!!!
         file_id = '14J3hAIrG43OSrmPu1oxH-vbaAoIt1IJU' 
         url = f'https://drive.google.com/uc?id={file_id}'
         gdown.download(url, output_path, quiet=False)
     
-    # Cargamos el modelo
-    model = tf.keras.models.load_model(output_path)
+    # --- AQUÍ ESTÁ LA CORRECCIÓN ---
+    # Le pasamos 'preprocess_input' en custom_objects para que Keras sepa qué función usar
+    model = tf.keras.models.load_model(
+        output_path, 
+        custom_objects={'preprocess_input': preprocess_input}
+    )
     return model
 
 # Ejecutamos la función de carga. Aparecerá un spinner mientras carga.
@@ -90,3 +93,4 @@ if file is not None:
     st.write("Detalle de probabilidades:")
 
     st.bar_chart(data=predictions[0])
+
