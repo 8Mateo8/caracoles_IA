@@ -15,7 +15,7 @@ st.set_page_config(
     layout="centered"
 )
 
-st.title("Reconocimiento de Personajes de Turbo")
+st.title("Reconocimiento de Objetos")
 # st.write("Sube una imagen y el modelo te dirá a qué clase pertenece.")
 
 # --- DEFINIR EL ESQUELETO DEL MODELO MANUALMENTE ---
@@ -103,5 +103,6 @@ if file is not None and model is not None:
     st.success(f"Predicción: **{class_name}**")
     st.info(f"Certeza: **{confidence:.2f}%**")
     st.bar_chart(predictions[0])
+
 
 
