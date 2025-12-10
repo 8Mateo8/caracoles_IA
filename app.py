@@ -55,7 +55,7 @@ def load_model_weights():
     output_path = 'caracoles_v1.h5'
     if not os.path.exists(output_path):
         # --- PEGA AQUÍ TU ID DE GOOGLE DRIVE ---
-        file_id = '14J3hAIrG43OSrmPu1oxH-vbaAoIt1IJU' 
+        file_id = '1DMe6hBonh9HWL89nzks3tXSHEyblBVAg' 
         url = f'https://drive.google.com/uc?id={file_id}'
         gdown.download(url, output_path, quiet=False)
     
@@ -103,6 +103,7 @@ if file is not None and model is not None:
     st.success(f"Predicción: **{class_name}**")
     st.info(f"Certeza: **{confidence:.2f}%**")
     st.bar_chart(predictions[0])
+
 
 
 
