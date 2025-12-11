@@ -11,7 +11,6 @@ import gdown
 # --- CONFIGURACIÓN DE LA PÁGINA ---
 st.set_page_config(
     page_title="Examen IA",
-    # page_icon="🤖",
     layout="centered"
 )
 
@@ -52,7 +51,7 @@ def load_model_weights():
     model = crear_esqueleto_modelo()
     
     # 2. Descargar el archivo de pesos (.h5)
-    output_path = 'caracoles_v1.h5'
+    output_path = 'caracoles.h5'
     if not os.path.exists(output_path):
         # --- PEGA AQUÍ TU ID DE GOOGLE DRIVE ---
         file_id = '1DMe6hBonh9HWL89nzks3tXSHEyblBVAg' 
@@ -103,6 +102,7 @@ if file is not None and model is not None:
     st.success(f"Predicción: **{class_name}**")
     st.info(f"Certeza: **{confidence:.2f}%**")
     st.bar_chart(predictions[0])
+
 
 
 
