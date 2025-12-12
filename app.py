@@ -21,6 +21,8 @@ st.markdown('<div style="text-align: justify;">En esta página web se presenta u
 
 st.header("Categorías Reconocibles")
 
+st.markdown('<div style="text-align: justify;">Son figuras de personajes de la película \"Turbo\"</div>', unsafe_allow_html=True)
+
 img1 = Image.open("Burn.jpeg")
 img2 = Image.open("Skidmark.jpeg")
 img3 = Image.open("Turbo.jpeg")
@@ -93,6 +95,7 @@ if file is not None and model is not None:
     st.success(f"Predicción: **{class_name}**")
     st.info(f"Certeza: **{confidence:.2f}%**")
     st.bar_chart(predictions[0])
+
 
 
 
