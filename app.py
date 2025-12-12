@@ -19,7 +19,22 @@ st.subheader('Mateo Calderón - Lisseth Guazhambo - Juan Hurtado')
 
 st.markdown('<div style="text-align: justify;">En esta página web se presenta un modelo de reconocimiento de imágenes de 3 categorías.</div>', unsafe_allow_html=True)
 
+st.header("Categorías Reconocibles")
 
+img1 = Image.open("Burn.jpeg")
+img2 = Image.open("Skidmark.jpeg")
+img3 = Image.open("Turbo.jpeg")
+
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    st.image(img1, caption="Burn")
+
+with col2:
+    st.image(img2, caption="Skidmark")
+
+with col3:
+    st.image(img3, caption="Turbo")
 
 def crear_esqueleto_modelo():
     base_model = EfficientNetB7(
@@ -78,6 +93,7 @@ if file is not None and model is not None:
     st.success(f"Predicción: **{class_name}**")
     st.info(f"Certeza: **{confidence:.2f}%**")
     st.bar_chart(predictions[0])
+
 
 
 
