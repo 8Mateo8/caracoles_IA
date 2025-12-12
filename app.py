@@ -60,7 +60,7 @@ def load_model_weights():
     model = crear_esqueleto_modelo()
     output_path = 'caracoles.h5'
     if not os.path.exists(output_path):
-        file_id = '1DMe6hBonh9HWL89nzks3tXSHEyblBVAg' 
+        file_id = '1unBgEsYPsswkd1f1ehqgSHQtS7wOD3gb' 
         url = f'https://drive.google.com/uc?id={file_id}'
         gdown.download(url, output_path, quiet=False)
     try:
@@ -93,6 +93,7 @@ if file is not None and model is not None:
     st.success(f"Predicción: **{class_name}**")
     st.info(f"Certeza: **{confidence:.2f}%**")
     st.bar_chart(predictions[0])
+
 
 
 
