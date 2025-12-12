@@ -15,6 +15,10 @@ st.set_page_config(
 
 st.title("Reconocimiento de Objetos")
 
+st.subheader('Mateo Calderón - Lisseth Guazhambo - Juan Hurtado')
+
+st.markdown('<div style="text-align: justify;">En esta página web se presenta un modelo de reconocimiento de imágenes de 3 categorías.</div>', unsafe_allow_html=True)
+
 
 
 def crear_esqueleto_modelo():
@@ -24,7 +28,7 @@ def crear_esqueleto_modelo():
         input_shape=(600, 600, 3)
     )
     base_model.trainable = False
-        model = models.Sequential([
+    model = models.Sequential([
         layers.Input(shape=(600, 600, 3)),
         layers.RandomFlip("horizontal"),
         layers.RandomRotation(0.1),        
@@ -74,6 +78,7 @@ if file is not None and model is not None:
     st.success(f"Predicción: **{class_name}**")
     st.info(f"Certeza: **{confidence:.2f}%**")
     st.bar_chart(predictions[0])
+
 
 
 
