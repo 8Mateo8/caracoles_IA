@@ -72,12 +72,13 @@ if file is not None and model is not None:
     predictions = model.predict(img_array)
     score = tf.nn.softmax(predictions[0])
     class_index = np.argmax(predictions[0])
-        class_name = nombres_clases[class_index]
+    class_name = nombres_clases[class_index]
     confidence = np.max(predictions[0]) * 100
     
     st.success(f"Predicción: **{class_name}**")
     st.info(f"Certeza: **{confidence:.2f}%**")
     st.bar_chart(predictions[0])
+
 
 
 
